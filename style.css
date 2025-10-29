@@ -1,0 +1,95 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+#books-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.book-card {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 15px;
+  width: 200px;
+  cursor: pointer;
+  background: #fefefe;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.book-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 4px 4px 10px rgba(0,0,0,0.2);
+}
+
+#collections-container {
+  margin-top: 20px;
+}
+
+.collection-tab {
+  display: inline-block;
+  margin-right: 10px;
+  padding: 8px 15px;
+  border-radius: 8px;
+  background: #f1f1f1;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.collection-tab.active {
+  background: #4CAF50;
+  color: white;
+}
+
+#items-container {
+  margin-top: 20px;
+}
+
+.item {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
+}
+
+.accordion {
+  cursor: pointer;
+  padding: 12px;
+  background: #f1f1f1;
+  transition: background 0.2s;
+}
+
+.accordion:hover {
+  background: #e2e2e2;
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  padding: 0 12px;
+}
+
+.accordion.active + .accordion-content {
+  padding: 12px;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.checklist-item input {
+  margin-right: 10px;
+}
+
+img {
+  max-width: 400px;
+  display: block;
+  margin: 5px 0;
+}
