@@ -33,30 +33,63 @@ let currentBook = null;
 let currentCollection = null;
 
 // ------------------ INLINE EDITING FOR BOOKS/COLLECTIONS ------------------
-function enableInlineEditing(el, saveCallback) {
+// ------------------ INLINE EDITING WITH DELETE ------------------
+function enableInlineEditingWithDelete(el, saveCallback, deleteCallback) {
   el.addEventListener("dblclick", () => {
     const oldText = el.textContent;
+
+    const wrapper = document.createElement("div");
+    wrapper.style.display = "flex";
+    wrapper.style.alignItems = "center";
+    wrapper.style.gap = "4px";
+
     const input = document.createElement("input");
     input.type = "text";
     input.value = oldText;
-    input.style.width = "100%";
-    el.replaceWith(input);
+    input.style.flex = "1";
+
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "×";
+    delBtn.style.cursor = "pointer";
+    delBtn.style.padding = "0 6px";
+    delBtn.style.height = "24px";
+    delBtn.title = "Delete";
+
+    // DELETE BUTTON CLICK
+    delBtn.addEventListener("click", e => {
+      e.stopPropagation(); // prevent blur/save
+      if (confirm(`Delete "${oldText}"?`)) {
+        deleteCallback();
+      }
+    });
+
+    wrapper.appendChild(input);
+    wrapper.appendChild(delBtn);
+    el.replaceWith(wrapper);
     input.focus();
 
     const save = () => {
       const newText = input.value.trim() || oldText;
       saveCallback(newText);
-      input.replaceWith(el);
+      wrapper.replaceWith(el);
       el.textContent = newText;
     };
 
-    input.addEventListener("blur", save);
+    input.addEventListener("blur", () => {
+      // Use setTimeout so the delete button click fires first
+      setTimeout(() => {
+        if (document.activeElement !== delBtn) save();
+      }, 0);
+    });
+
     input.addEventListener("keydown", e => {
       if (e.key === "Enter") save();
-      if (e.key === "Escape") input.replaceWith(el); // Cancel editing
+      if (e.key === "Escape") wrapper.replaceWith(el);
     });
   });
 }
+
+
 
 // ------------------ RENDER FUNCTIONS ------------------
 function renderBooks() {
@@ -70,7 +103,19 @@ function renderBooks() {
     card.addEventListener("click", () => selectBook(idx));
 
     // Inline edit on double-click
-    enableInlineEditing(card, newText => book.title = newText);
+    enableInlineEditingWithDelete(card, 
+  newText => book.title = newText,
+  () => {
+    data.splice(idx, 1); // remove the book
+    renderBooks();
+    currentBook = null;
+    collectionsContainer.innerHTML = "";
+    itemsContainer.innerHTML = "";
+    addCollectionBtn.disabled = true;
+    addItemBtn.disabled = true;
+  }
+);
+
 
     // Drag & drop
     card.draggable = true;
@@ -100,7 +145,17 @@ function renderCollections() {
     tab.addEventListener("click", () => selectCollection(idx));
 
     // Inline edit on double-click
-    enableInlineEditing(tab, newText => col.title = newText);
+    enableInlineEditingWithDelete(tab, 
+  newText => col.title = newText,
+  () => {
+    currentBook.collections.splice(idx, 1); // remove collection
+    renderCollections();
+    currentCollection = currentBook.collections[0] || null;
+    renderItems();
+    addItemBtn.disabled = !currentCollection;
+  }
+);
+
 
     // Drag & drop
     tab.draggable = true;
@@ -360,7 +415,11 @@ addChecklistBtn.addEventListener("click", () => {
   `;
   li.querySelector("button").addEventListener("click", () => li.remove());
   checklistUl.appendChild(li);
+
+  // Focus the text input
+  li.querySelector('input[type="text"]').focus();
 });
+
 
 // Cancel
 cancelBtn.addEventListener("click", () => {
