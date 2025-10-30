@@ -32,20 +32,49 @@ const addItemBtn = document.getElementById("add-item-btn");
 let currentBook = null;
 let currentCollection = null;
 
+// ------------------ INLINE EDITING FOR BOOKS/COLLECTIONS ------------------
+function enableInlineEditing(el, saveCallback) {
+  el.addEventListener("dblclick", () => {
+    const oldText = el.textContent;
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = oldText;
+    input.style.width = "100%";
+    el.replaceWith(input);
+    input.focus();
+
+    const save = () => {
+      const newText = input.value.trim() || oldText;
+      saveCallback(newText);
+      input.replaceWith(el);
+      el.textContent = newText;
+    };
+
+    input.addEventListener("blur", save);
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") save();
+      if (e.key === "Escape") input.replaceWith(el); // Cancel editing
+    });
+  });
+}
+
 // ------------------ RENDER FUNCTIONS ------------------
 function renderBooks() {
   booksContainer.innerHTML = "";
   data.forEach((book, idx) => {
     const card = document.createElement("div");
-    card.className = "book-card editable";
+    card.className = "book-card";
     card.textContent = book.title;
-    card.contentEditable = true;
+
+    // Select book on click
     card.addEventListener("click", () => selectBook(idx));
-    card.addEventListener("input", () => book.title = card.textContent);
-    // Drag
+
+    // Inline edit on double-click
+    enableInlineEditing(card, newText => book.title = newText);
+
+    // Drag & drop
     card.draggable = true;
-    card.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", idx); card.classList.add("dragging"); });
-    card.addEventListener("dragend", () => card.classList.remove("dragging"));
+    card.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", idx));
     card.addEventListener("dragover", e => e.preventDefault());
     card.addEventListener("drop", e => {
       e.preventDefault();
@@ -54,6 +83,7 @@ function renderBooks() {
       data.splice(idx, 0, moved);
       renderBooks();
     });
+
     booksContainer.appendChild(card);
   });
 }
@@ -63,15 +93,18 @@ function renderCollections() {
   if (!currentBook) return;
   currentBook.collections.forEach((col, idx) => {
     const tab = document.createElement("div");
-    tab.className = "collection-tab editable";
+    tab.className = "collection-tab";
     tab.textContent = col.title;
-    tab.contentEditable = true;
+
+    // Select collection on click
     tab.addEventListener("click", () => selectCollection(idx));
-    tab.addEventListener("input", () => col.title = tab.textContent);
-    // Drag
+
+    // Inline edit on double-click
+    enableInlineEditing(tab, newText => col.title = newText);
+
+    // Drag & drop
     tab.draggable = true;
-    tab.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", idx); tab.classList.add("dragging"); });
-    tab.addEventListener("dragend", () => tab.classList.remove("dragging"));
+    tab.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", idx));
     tab.addEventListener("dragover", e => e.preventDefault());
     tab.addEventListener("drop", e => {
       e.preventDefault();
@@ -80,6 +113,7 @@ function renderCollections() {
       currentBook.collections.splice(idx, 0, moved);
       renderCollections();
     });
+
     if (idx === 0) tab.classList.add("active");
     collectionsContainer.appendChild(tab);
   });
@@ -88,31 +122,27 @@ function renderCollections() {
 function renderItems() {
   itemsContainer.innerHTML = "";
   if (!currentCollection) return;
+
   currentCollection.items.forEach((item, idx) => {
     const itemDiv = document.createElement("div");
     itemDiv.className = "item";
+
     const acc = document.createElement("div");
-    acc.className = "accordion editable";
+    acc.className = "accordion";
     acc.textContent = item.title;
-    acc.contentEditable = true;
-    acc.addEventListener("input", () => item.title = acc.textContent);
+
     const content = document.createElement("div");
     content.className = "accordion-content";
-    content.innerHTML = `
-      <p>${item.content.text || ""}</p>
-      ${(item.content.checklist || []).map(c => `<div class='checklist-item'><input type='checkbox' ${c.done ? "checked" : ""}>${c.text}</div>`).join("")}
-      ${(item.content.images || []).map(src => `<img src='${src}'>`).join("")}
-      ${item.content.video ? `<iframe width='300' height='169' src='${item.content.video}' frameborder='0' allowfullscreen></iframe>` : ""}
-      ${(item.content.links || []).map(l => `<div><a href='${l}' target='_blank'>${l}</a></div>`).join("")}
-    `;
+    content.innerHTML = `<p>${item.content.text || ""}</p>`;
+
     acc.addEventListener("click", () => {
       acc.classList.toggle("active");
       content.style.maxHeight = acc.classList.contains("active") ? content.scrollHeight + "px" : null;
     });
-    // Drag
+
+    // Drag & drop
     itemDiv.draggable = true;
-    itemDiv.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", idx); itemDiv.classList.add("dragging"); });
-    itemDiv.addEventListener("dragend", () => itemDiv.classList.remove("dragging"));
+    itemDiv.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", idx));
     itemDiv.addEventListener("dragover", e => e.preventDefault());
     itemDiv.addEventListener("drop", e => {
       e.preventDefault();
@@ -122,11 +152,15 @@ function renderItems() {
       renderItems();
     });
 
+    // Double-click opens full-page item editor
+    itemDiv.addEventListener("dblclick", () => openItemEditor(item));
+
     itemDiv.appendChild(acc);
     itemDiv.appendChild(content);
     itemsContainer.appendChild(itemDiv);
   });
 }
+
 
 // ------------------ SELECTION ------------------
 function selectBook(idx) {
