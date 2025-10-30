@@ -100,7 +100,13 @@ function renderBooks() {
     card.textContent = book.title;
 
     // Select book on click
-    card.addEventListener("click", () => selectBook(idx));
+    card.addEventListener("click", () => {
+  selectBook(idx);
+  document.querySelectorAll(".book-card").forEach((c, i) => 
+    c.classList.toggle("active", i === idx)
+  );
+});
+
 
     // Inline edit on double-click
     enableInlineEditingWithDelete(card, 
@@ -130,7 +136,9 @@ function renderBooks() {
     });
 
     booksContainer.appendChild(card);
+    
   });
+   enhanceVisuals();
 }
 
 function renderCollections() {
@@ -154,6 +162,7 @@ function renderCollections() {
     renderItems();
     addItemBtn.disabled = !currentCollection;
   }
+  
 );
 
 
@@ -172,6 +181,7 @@ function renderCollections() {
     if (idx === 0) tab.classList.add("active");
     collectionsContainer.appendChild(tab);
   });
+   enhanceVisuals();
 }
 
 function renderItems() {
@@ -227,6 +237,7 @@ function renderItems() {
     itemDiv.appendChild(content);
     itemsContainer.appendChild(itemDiv);
   });
+  // enhanceVisuals();
 }
 
 
@@ -302,6 +313,38 @@ addItemBtn.addEventListener("click", () => {
   currentCollection.items.push(newItem);
   openItemEditor(newItem); // open full-page editor immediately
 });
+
+// ------------------ VISUAL ENHANCEMENTS ------------------
+
+// Apply fade-in animation when adding new elements
+function fadeInElement(el) {
+  el.classList.add("fade-in");
+  el.addEventListener("animationend", () => el.classList.remove("fade-in"), { once: true });
+}
+
+// Apply fade-out animation before removal
+function fadeOutAndRemove(el, callback) {
+  el.classList.add("fade-out");
+  el.addEventListener("animationend", () => {
+    el.remove();
+    if (callback) callback();
+  }, { once: true });
+}
+
+// Add drag visuals
+function addDragVisuals(el) {
+  el.addEventListener("dragstart", () => el.classList.add("dragging"));
+  el.addEventListener("dragend", () => el.classList.remove("dragging"));
+}
+
+// Add fade/drag visuals to books, collections, and items after rendering
+function enhanceVisuals() {
+  document.querySelectorAll(".book-card, .collection-tab, .item").forEach(el => {
+    addDragVisuals(el);
+    fadeInElement(el);
+  });
+}
+
 
 
 //----------------
@@ -426,29 +469,54 @@ cancelBtn.addEventListener("click", () => {
   closeEditor();
 });
 
-// Delete
+// --- DELETE ---
 deleteBtn.addEventListener("click", () => {
   if (!editingItem) return;
-  if (confirm(`Delete "${editingItem.title}"?`)) {
-    currentCollection.items = currentCollection.items.filter(i => i !== editingItem);
-    closeEditor();
-    selectCollection(currentCollection, document.querySelector(".collection-tab.active"));
-  }
+
+  // Confirm delete
+  if (!confirm(`Delete "${editingItem.title}"?`)) return;
+
+  // Remove from array
+  currentCollection.items = currentCollection.items.filter(i => i !== editingItem);
+
+  closeEditor();
+
+  // Refresh items for the current collection
+  renderItems(currentCollection.items);
+
+  // Highlight the active collection tab
+  const activeTab = [...document.querySelectorAll(".collection-tab")]
+    .find(tab => tab.textContent.trim() === currentCollection.title);
+  if (activeTab) activeTab.classList.add("active");
 });
 
+
 // Save
+// --- SAVE ---
 saveBtn.addEventListener("click", () => {
   if (!editingItem) return;
-  editingItem.title = editorTitle.value;
+
+  // Update title and content
+  editingItem.title = editorTitle.value.trim() || editingItem.title;
   editingItem.content.text = editorContent.innerHTML;
+
+  // Update checklist
   editingItem.content.checklist = Array.from(checklistUl.children).map(li => ({
     text: li.querySelector('input[type="text"]').value,
     done: li.querySelector('input[type="checkbox"]').checked
   }));
 
   closeEditor();
-  selectCollection(currentCollection, document.querySelector(".collection-tab.active"));
+
+  // Refresh items for the current collection
+  renderItems(currentCollection.items);
+
+  // Highlight the active collection tab
+  const activeTab = [...document.querySelectorAll(".collection-tab")]
+    .find(tab => tab.textContent.trim() === currentCollection.title);
+  if (activeTab) activeTab.classList.add("active");
 });
+
 
 
 function closeEditor() {
