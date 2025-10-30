@@ -133,7 +133,20 @@ function renderItems() {
 
     const content = document.createElement("div");
     content.className = "accordion-content";
-    content.innerHTML = `<p>${item.content.text || ""}</p>`;
+
+    // Build accordion content (text, checklist, images, video, links)
+    content.innerHTML = `
+      <p>${item.content.text || ""}</p>
+      ${(item.content.checklist || []).map(c => `
+        <div class="checklist-item">
+          <input type="checkbox" ${c.done ? "checked" : ""}>
+          ${c.text}
+        </div>
+      `).join("")}
+      ${(item.content.images || []).map(src => `<img src="${src}">`).join("")}
+      ${item.content.video ? `<iframe width='300' height='169' src='${item.content.video}' frameborder='0' allowfullscreen></iframe>` : ""}
+      ${(item.content.links || []).map(l => `<div><a href="${l}" target="_blank">${l}</a></div>`).join("")}
+    `;
 
     acc.addEventListener("click", () => {
       acc.classList.toggle("active");
@@ -160,6 +173,7 @@ function renderItems() {
     itemsContainer.appendChild(itemDiv);
   });
 }
+
 
 
 // ------------------ SELECTION ------------------
@@ -268,20 +282,33 @@ function setupItemEditing() {
 
 
 function openItemEditor(item) {
-
-  editingItem = item; // <-- fix here
-  
+  // Hide the main UI
   document.getElementById("menu-bar").style.display = "none";
   booksContainer.style.display = "none";
   collectionsContainer.style.display = "none";
   itemsContainer.style.display = "none";
+
+  // Show the editor
   editorContainer.classList.remove("hidden");
 
+  // Set title
   editorTitle.value = item.title;
-  editorContent.innerHTML = item.content.text || "";
 
+  // Build full WYSIWYG content: text + images + video + links
+  editorContent.innerHTML = `
+    <p>${item.content.text || ""}</p>
+    ${(item.content.images || []).map(src => `<img src="${src}">`).join("")}
+    ${item.content.video ? `<iframe width="400" height="225" src="${item.content.video}" frameborder="0" allowfullscreen></iframe>` : ""}
+    ${(item.content.links || []).map(l => `<div><a href="${l}" target="_blank">${l}</a></div>`).join("")}
+  `;
+
+  // Render checklist separately
   renderChecklist(item.content.checklist);
+
+  // Assign the current item to editingItem so Save/Delete buttons work
+  editingItem = item;
 }
+
 
 function renderChecklist(checklist) {
   checklistUl.innerHTML = "";
