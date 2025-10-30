@@ -1,218 +1,208 @@
+/* ------------------ GLOBAL STYLES ------------------ */
 body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f4f6f8;
+  margin: 0;
+  padding: 0;
+  color: #333;
 }
 
-#menu-buttons {
-  margin-bottom: 15px;
-}
-
-#menu-buttons button {
-  padding: 8px 15px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+button {
   cursor: pointer;
-  background: #fefefe;
-  margin-right: 10px;
-  transition: background 0.2s, box-shadow 0.2s;
-}
-#menu-buttons button:hover {
-  background: #f1f1f1;
-  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  font-family: inherit;
 }
 
+.hidden {
+  display: none;
+}
+
+/* ------------------ MENU BAR ------------------ */
+#menu-bar {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: #ffffff;
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* ------------------ BOOK CARDS ------------------ */
 #books-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  padding: 10px;
+  gap: 10px;
 }
 
 .book-card {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 15px;
-  width: 200px;
+  padding: 10px 15px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   cursor: pointer;
-  background: #fefefe;
-  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.2s;
 }
 
 .book-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 4px 4px 10px rgba(0,0,0,0.2);
+  background: #e0f7fa;
+  transform: translateY(-2px);
 }
 
+.book-card input {
+  font-size: 1rem;
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* ------------------ COLLECTION TABS ------------------ */
 #collections-container {
-  margin-top: 20px;
   display: flex;
-  gap: 10px;
+  gap: 5px;
+  padding: 10px;
   overflow-x: auto;
 }
 
 .collection-tab {
-  padding: 8px 15px;
-  border-radius: 8px;
-  background: #f1f1f1;
+  padding: 8px 12px;
+  background: #e0e0e0;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.2s;
   white-space: nowrap;
+  transition: all 0.2s;
+  flex-shrink: 0;
 }
 
 .collection-tab.active {
-  background: #4CAF50;
+  background: #4fc3f7;
   color: white;
+  font-weight: bold;
 }
 
+.collection-tab input {
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* ------------------ ITEMS ------------------ */
 #items-container {
-  margin-top: 20px;
+  padding: 10px;
 }
 
 .item {
-  border: 1px solid #ddd;
+  background: #fff;
+  padding: 10px;
+  margin-bottom: 8px;
   border-radius: 8px;
-  margin-bottom: 10px;
-  overflow: hidden;
-  box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+}
+
+.item:hover {
+  transform: translateY(-1px);
 }
 
 .accordion {
+  font-weight: bold;
   cursor: pointer;
-  padding: 12px;
-  background: #f1f1f1;
-  transition: background 0.2s;
-}
-
-.accordion:hover {
-  background: #e2e2e2;
-}
-
-.accordion-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-  padding: 0 12px;
-}
-
-.accordion.active + .accordion-content {
-  padding: 12px;
-}
-
-.checklist-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
-}
-
-.checklist-item input {
-  margin-right: 10px;
-}
-
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 5px 0;
-}
-
-.dragging {
-  opacity: 0.5;
-  transform: scale(0.98);
-  box-shadow: 4px 4px 10px rgba(0,0,0,0.2);
-}
-
-.editable {
-  border-bottom: 1px dashed #999;
-  cursor: text;
-}
-
-/* Item Editor */
-.hidden {
-  display: none !important;
-}
-
-
-/* Full-page editor container */
-#item-editor-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  padding: 15px;
-  box-sizing: border-box;
-}
-
-#item-editor-container.hidden {
-  display: none;
-}
-
-/* Toolbar layout */
-#item-editor-toolbar {
+  padding: 5px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 5px;
-  margin-bottom: 10px;
 }
 
-#toolbar-buttons button,
-#toolbar-actions button {
-  padding: 5px 10px;
-  margin-right: 5px;
-  border: 1px solid #ccc;
-  background: #fefefe;
+.accordion-content {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.25s ease-out;
+  padding-top: 5px;
+}
+
+.accordion-content p {
+  margin: 5px 0;
+}
+
+.accordion-content img {
+  max-width: 100%;
   border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s;
+  margin: 5px 0;
 }
 
-#toolbar-buttons button:hover,
-#toolbar-actions button:hover {
-  background: #f1f1f1;
+.accordion-content a {
+  color: #1976d2;
+  text-decoration: none;
 }
 
-/* Title input */
+.accordion-content a:hover {
+  text-decoration: underline;
+}
+
+/* ------------------ CHECKLIST ------------------ */
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 3px 0;
+}
+
+.checklist-item input[type="text"] {
+  flex: 1;
+  padding: 3px 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.checklist-item input[type="checkbox"]:checked + input[type="text"] {
+  text-decoration: line-through;
+  color: #888;
+}
+
+/* ------------------ ITEM EDITOR ------------------ */
+#item-editor-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fafafa;
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 999;
+}
+
 #editor-title {
-  font-size: 1.4em;
-  padding: 8px;
+  width: 100%;
+  font-size: 1.2rem;
+  padding: 6px;
   margin-bottom: 10px;
   border-radius: 6px;
   border: 1px solid #ccc;
 }
 
-/* WYSIWYG content area */
 #editor-content {
-  flex: 1;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  border: 1px solid #ddd;
   padding: 10px;
-  overflow-y: auto;
-  min-height: 200px;
-  margin-bottom: 15px;
+  border-radius: 6px;
+  min-height: 150px;
+  background: #fff;
+  margin-bottom: 10px;
 }
 
-/* Checklist section */
 #checklist-items {
   list-style: none;
-  padding: 0;
+  padding-left: 0;
 }
 
-#checklist-items li {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 5px;
-}
-
-#checklist-items input[type="text"] {
-  flex: 1;
-  padding: 5px;
-}
-
-#checklist-items button {
-  background: #f8d7da;
-  border: 1px solid #f5c2c7;
-  color: #721c24;
+#toolbar-buttons button {
+  margin-right: 5px;
+  padding: 5px 8px;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  cursor: pointer;
+  background: #f0f0f0;
+  transition: background 0.2s;
+}
+
+#toolbar-buttons button:hover {
+  background: #e0e0e0;
 }
