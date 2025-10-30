@@ -180,28 +180,60 @@ function selectCollection(idx) {
 }
 
 // ------------------ ADD BUTTONS ------------------
+// ---------- Add Book Inline ----------
 addBookBtn.addEventListener("click", () => {
-  const title = prompt("Enter book title:");
-  if (!title) return;
-  data.push({ title, collections: [] });
+  const newBook = { title: "", collections: [] };
+  data.push(newBook);
   renderBooks();
+
+  // Focus on the new book card
+  const lastCard = booksContainer.lastChild;
+  const input = document.createElement("input");
+  input.type = "text";
+  input.value = "";
+  lastCard.replaceWith(input);
+  input.focus();
+
+  // Save on blur or Enter
+  const save = () => {
+    newBook.title = input.value.trim() || "New Book";
+    renderBooks();
+  };
+  input.addEventListener("blur", save);
+  input.addEventListener("keydown", e => { if (e.key === "Enter") save(); });
 });
 
+// ---------- Add Collection Inline ----------
 addCollectionBtn.addEventListener("click", () => {
   if (!currentBook) return;
-  const title = prompt("Enter collection title:");
-  if (!title) return;
-  currentBook.collections.push({ title, items: [] });
+  const newCol = { title: "", items: [] };
+  currentBook.collections.push(newCol);
   renderCollections();
+
+  // Focus on the new collection tab
+  const lastTab = collectionsContainer.lastChild;
+  const input = document.createElement("input");
+  input.type = "text";
+  input.value = "";
+  lastTab.replaceWith(input);
+  input.focus();
+
+  const save = () => {
+    newCol.title = input.value.trim() || "New Collection";
+    renderCollections();
+  };
+  input.addEventListener("blur", save);
+  input.addEventListener("keydown", e => { if (e.key === "Enter") save(); });
 });
 
+// ---------- Add Item Directly Opens Editor ----------
 addItemBtn.addEventListener("click", () => {
   if (!currentCollection) return;
-  const title = prompt("Enter item title:");
-  if (!title) return;
-  currentCollection.items.push({ title, content: { text:"", checklist: [], images: [], video:"", links: [] }});
-  renderItems();
+  const newItem = { title: "New Item", content: { text:"", checklist: [], images: [], video:"", links: [] } };
+  currentCollection.items.push(newItem);
+  openItemEditor(newItem); // open full-page editor immediately
 });
+
 
 //----------------
 // Item Editor
