@@ -11,11 +11,47 @@
     <div id="menu-buttons">
       <button id="add-book-btn">+ Book</button>
       <button id="add-collection-btn" disabled>+ Collection</button>
+      <button id="add-item-btn" disabled>+ Item</button>
     </div>
   </div>
+
   <div id="books-container"></div>
   <div id="collections-container"></div>
   <div id="items-container"></div>
+
+  <!-- Add inside <body> -->
+<!-- Item Editor -->
+<div id="item-editor-container" class="hidden">
+  <div id="item-editor-toolbar">
+    <div id="toolbar-buttons">
+      <button data-command="bold"><b>B</b></button>
+      <button data-command="italic"><i>I</i></button>
+      <button data-command="justifyLeft">Left</button>
+      <button data-command="justifyCenter">Center</button>
+      <button data-command="justifyRight">Right</button>
+      <button data-command="justifyFull">Justify</button>
+      <button id="add-image-btn">Image</button>
+      <button id="add-video-btn">Video</button>
+      <button id="add-link-btn">Link</button>
+      <button id="add-checklist-btn">Checklist</button>
+    </div>
+    <div id="toolbar-actions">
+      <button id="cancel-btn">Cancel</button>
+      <button id="delete-btn">Delete</button>
+      <button id="save-btn">Save</button>
+    </div>
+  </div>
+
+  <input type="text" id="editor-title" placeholder="Item title">
+
+  <div id="editor-content" contenteditable="true" placeholder="Write here..."></div>
+
+  <ul id="checklist-items"></ul>
+</div>
+
+
+
+
   <script src="script.js"></script>
 </body>
 </html>

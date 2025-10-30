@@ -1,4 +1,4 @@
-const data = [
+let data = [
   {
     title: "D&D",
     collections: [
@@ -14,60 +14,6 @@ const data = [
               video: "",
               links: ["https://example.com"]
             }
-          },
-          {
-            title: "Session 2",
-            content: {
-              text: "Visited town",
-              checklist: [{ text: "Bought potions", done: true }],
-              images: [],
-              video: "",
-              links: []
-            }
-          }
-        ]
-      },
-      {
-        title: "Character Sheets",
-        items: [
-          { title: "Thorin", content: { text: "Dwarf Fighter", checklist: [], images: [], video: "", links: [] } },
-          { title: "Elyra", content: { text: "Elf Wizard", checklist: [], images: [], video: "", links: [] } }
-        ]
-      },
-      {
-        title: "World Lore",
-        items: [
-          { title: "Kingdoms", content: { text: "Five kingdoms exist", checklist: [], images: [], video: "", links: [] } }
-        ]
-      }
-    ]
-  },
-  {
-    title: "Books I've Read",
-    collections: [
-      { title: "Fantasy", items: Array.from({ length: 10 }, (_, i) => ({ title: `Fantasy Book ${i + 1}`, content: { text: "Lorem ipsum...", checklist: [], images: [], video: "", links: [] } })) },
-      { title: "Sci-Fi", items: Array.from({ length: 10 }, (_, i) => ({ title: `Sci-Fi Book ${i + 1}`, content: { text: "Lorem ipsum...", checklist: [], images: [], video: "", links: [] } })) },
-      { title: "Mystery", items: Array.from({ length: 10 }, (_, i) => ({ title: `Mystery Book ${i + 1}`, content: { text: "Lorem ipsum...", checklist: [], images: [], video: "", links: [] } })) },
-      { title: "Non-Fiction", items: Array.from({ length: 10 }, (_, i) => ({ title: `Non-Fiction Book ${i + 1}`, content: { text: "Lorem ipsum...", checklist: [], images: [], video: "", links: [] } })) },
-      { title: "Biography", items: Array.from({ length: 10 }, (_, i) => ({ title: `Biography Book ${i + 1}`, content: { text: "Lorem ipsum...", checklist: [], images: [], video: "", links: [] } })) },
-      { title: "Self-Help", items: Array.from({ length: 10 }, (_, i) => ({ title: `Self-Help Book ${i + 1}`, content: { text: "Lorem ipsum...", checklist: [], images: [], video: "", links: [] } })) }
-    ]
-  },
-  {
-    title: "Consulting",
-    collections: [
-      {
-        title: "Project A",
-        items: [
-          {
-            title: "Meeting Notes",
-            content: {
-              text: "Discussed roadmap",
-              checklist: [{ text: "Follow up with client", done: false }],
-              images: [],
-              video: "",
-              links: []
-            }
           }
         ]
       }
@@ -79,167 +25,290 @@ const booksContainer = document.getElementById("books-container");
 const collectionsContainer = document.getElementById("collections-container");
 const itemsContainer = document.getElementById("items-container");
 
+const addBookBtn = document.getElementById("add-book-btn");
+const addCollectionBtn = document.getElementById("add-collection-btn");
+const addItemBtn = document.getElementById("add-item-btn");
+
 let currentBook = null;
 let currentCollection = null;
 
-// Render Books Grid
-data.forEach(book => {
-  const card = document.createElement("div");
-  card.className = "book-card";
-  card.textContent = book.title;
-  card.addEventListener("click", () => selectBook(book));
-  booksContainer.appendChild(card);
-});
-
-function selectBook(book) {
-  currentBook = book;
-  collectionsContainer.innerHTML = "";
-  itemsContainer.innerHTML = "";
-  book.collections.forEach((collection, idx) => {
-    const tab = document.createElement("div");
-    tab.className = "collection-tab";
-    if (idx === 0) tab.classList.add("active");
-    tab.textContent = collection.title;
-    tab.addEventListener("click", () => selectCollection(collection, tab));
-    collectionsContainer.appendChild(tab);
-    if (idx === 0) selectCollection(collection, tab);
-  });
-  enableCollectionDrag();
-}
-
-function selectCollection(collection, tabElement) {
-  currentCollection = collection;
-  itemsContainer.innerHTML = "";
-  document.querySelectorAll(".collection-tab").forEach(tab => tab.classList.remove("active"));
-  tabElement.classList.add("active");
-
-  collection.items.forEach(item => {
-    const itemDiv = document.createElement("div");
-    itemDiv.className = "item";
-    itemDiv.innerHTML = `
-      <div class="accordion">${item.title}</div>
-      <div class="accordion-content">
-        <p>${item.content.text || ""}</p>
-        ${(item.content.checklist || [])
-          .map(c => `<div class='checklist-item'><input type='checkbox' ${c.done ? "checked" : ""}>${c.text}</div>`)
-          .join("")}
-        ${(item.content.images || [])
-          .map(src => `<img src='${src}'>`)
-          .join("")}
-        ${item.content.video ? `<iframe width='300' height='169' src='${item.content.video}' frameborder='0' allowfullscreen></iframe>` : ""}
-        ${(item.content.links || [])
-          .map(l => `<div><a href='${l}' target='_blank'>${l}</a></div>`)
-          .join("")}
-      </div>`;
-    itemsContainer.appendChild(itemDiv);
-  });
-
-  setupAccordions();
-  enableItemDrag();
-}
-
-function setupAccordions() {
-  document.querySelectorAll(".accordion").forEach(acc => {
-    acc.addEventListener("click", function () {
-      this.classList.toggle("active");
-      const content = this.nextElementSibling;
-      if (this.classList.contains("active")) {
-        content.style.maxHeight = content.scrollHeight + "px";
-      } else {
-        content.style.maxHeight = null;
-      }
-    });
-  });
-}
-
-function enableBookDrag() {
-  const bookCards = document.querySelectorAll(".book-card");
-  bookCards.forEach((card, idx) => {
+// ------------------ RENDER FUNCTIONS ------------------
+function renderBooks() {
+  booksContainer.innerHTML = "";
+  data.forEach((book, idx) => {
+    const card = document.createElement("div");
+    card.className = "book-card editable";
+    card.textContent = book.title;
+    card.contentEditable = true;
+    card.addEventListener("click", () => selectBook(idx));
+    card.addEventListener("input", () => book.title = card.textContent);
+    // Drag
     card.draggable = true;
-    card.addEventListener("dragstart", e => {
-      e.dataTransfer.setData("text/plain", idx);
-      card.style.opacity = 0.5;
-    });
-    card.addEventListener("dragend", () => {
-      card.style.opacity = 1;
-    });
-    card.addEventListener("dragover", e => {
-      e.preventDefault();
-      card.style.border = "2px dashed #4CAF50";
-    });
-    card.addEventListener("dragleave", () => {
-      card.style.border = "1px solid #ccc";
-    });
+    card.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", idx); card.classList.add("dragging"); });
+    card.addEventListener("dragend", () => card.classList.remove("dragging"));
+    card.addEventListener("dragover", e => e.preventDefault());
     card.addEventListener("drop", e => {
       e.preventDefault();
       const fromIdx = e.dataTransfer.getData("text/plain");
-      const toIdx = idx;
       const moved = data.splice(fromIdx, 1)[0];
-      data.splice(toIdx, 0, moved);
-      booksContainer.innerHTML = "";
-      data.forEach(book => {
-        const newCard = document.createElement("div");
-        newCard.className = "book-card";
-        newCard.textContent = book.title;
-        newCard.addEventListener("click", () => selectBook(book));
-        booksContainer.appendChild(newCard);
-      });
-      enableBookDrag();
+      data.splice(idx, 0, moved);
+      renderBooks();
     });
+    booksContainer.appendChild(card);
   });
 }
-enableBookDrag();
 
-function enableCollectionDrag() {
-  const tabs = document.querySelectorAll(".collection-tab");
-  tabs.forEach((tab, idx) => {
+function renderCollections() {
+  collectionsContainer.innerHTML = "";
+  if (!currentBook) return;
+  currentBook.collections.forEach((col, idx) => {
+    const tab = document.createElement("div");
+    tab.className = "collection-tab editable";
+    tab.textContent = col.title;
+    tab.contentEditable = true;
+    tab.addEventListener("click", () => selectCollection(idx));
+    tab.addEventListener("input", () => col.title = tab.textContent);
+    // Drag
     tab.draggable = true;
-    tab.addEventListener("dragstart", e => {
-      e.dataTransfer.setData("text/plain", idx);
-    });
-    tab.addEventListener("dragover", e => {
-      e.preventDefault();
-      tab.style.background = "#ddd";
-    });
-    tab.addEventListener("dragleave", () => {
-      tab.style.background = tab.classList.contains("active") ? "#4CAF50" : "#f1f1f1";
-    });
+    tab.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", idx); tab.classList.add("dragging"); });
+    tab.addEventListener("dragend", () => tab.classList.remove("dragging"));
+    tab.addEventListener("dragover", e => e.preventDefault());
     tab.addEventListener("drop", e => {
       e.preventDefault();
       const fromIdx = e.dataTransfer.getData("text/plain");
-      const toIdx = idx;
       const moved = currentBook.collections.splice(fromIdx, 1)[0];
-      currentBook.collections.splice(toIdx, 0, moved);
-      selectBook(currentBook);
+      currentBook.collections.splice(idx, 0, moved);
+      renderCollections();
+    });
+    if (idx === 0) tab.classList.add("active");
+    collectionsContainer.appendChild(tab);
+  });
+}
+
+function renderItems() {
+  itemsContainer.innerHTML = "";
+  if (!currentCollection) return;
+  currentCollection.items.forEach((item, idx) => {
+    const itemDiv = document.createElement("div");
+    itemDiv.className = "item";
+    const acc = document.createElement("div");
+    acc.className = "accordion editable";
+    acc.textContent = item.title;
+    acc.contentEditable = true;
+    acc.addEventListener("input", () => item.title = acc.textContent);
+    const content = document.createElement("div");
+    content.className = "accordion-content";
+    content.innerHTML = `
+      <p>${item.content.text || ""}</p>
+      ${(item.content.checklist || []).map(c => `<div class='checklist-item'><input type='checkbox' ${c.done ? "checked" : ""}>${c.text}</div>`).join("")}
+      ${(item.content.images || []).map(src => `<img src='${src}'>`).join("")}
+      ${item.content.video ? `<iframe width='300' height='169' src='${item.content.video}' frameborder='0' allowfullscreen></iframe>` : ""}
+      ${(item.content.links || []).map(l => `<div><a href='${l}' target='_blank'>${l}</a></div>`).join("")}
+    `;
+    acc.addEventListener("click", () => {
+      acc.classList.toggle("active");
+      content.style.maxHeight = acc.classList.contains("active") ? content.scrollHeight + "px" : null;
+    });
+    // Drag
+    itemDiv.draggable = true;
+    itemDiv.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", idx); itemDiv.classList.add("dragging"); });
+    itemDiv.addEventListener("dragend", () => itemDiv.classList.remove("dragging"));
+    itemDiv.addEventListener("dragover", e => e.preventDefault());
+    itemDiv.addEventListener("drop", e => {
+      e.preventDefault();
+      const fromIdx = e.dataTransfer.getData("text/plain");
+      const moved = currentCollection.items.splice(fromIdx, 1)[0];
+      currentCollection.items.splice(idx, 0, moved);
+      renderItems();
+    });
+
+    itemDiv.appendChild(acc);
+    itemDiv.appendChild(content);
+    itemsContainer.appendChild(itemDiv);
+  });
+}
+
+// ------------------ SELECTION ------------------
+function selectBook(idx) {
+  currentBook = data[idx];
+  currentCollection = currentBook.collections[0] || null;
+  renderCollections();
+  renderItems();
+  addCollectionBtn.disabled = false;
+  addItemBtn.disabled = !currentCollection;
+}
+
+function selectCollection(idx) {
+  currentCollection = currentBook.collections[idx];
+  document.querySelectorAll(".collection-tab").forEach((t,i) => t.classList.toggle("active", i===idx));
+  renderItems();
+  addItemBtn.disabled = false;
+}
+
+// ------------------ ADD BUTTONS ------------------
+addBookBtn.addEventListener("click", () => {
+  const title = prompt("Enter book title:");
+  if (!title) return;
+  data.push({ title, collections: [] });
+  renderBooks();
+});
+
+addCollectionBtn.addEventListener("click", () => {
+  if (!currentBook) return;
+  const title = prompt("Enter collection title:");
+  if (!title) return;
+  currentBook.collections.push({ title, items: [] });
+  renderCollections();
+});
+
+addItemBtn.addEventListener("click", () => {
+  if (!currentCollection) return;
+  const title = prompt("Enter item title:");
+  if (!title) return;
+  currentCollection.items.push({ title, content: { text:"", checklist: [], images: [], video:"", links: [] }});
+  renderItems();
+});
+
+//----------------
+// Item Editor
+//----------------
+
+
+// === Item Editor Integration ===
+const editorContainer = document.getElementById("item-editor-container");
+const editorTitle = document.getElementById("editor-title");
+const editorContent = document.getElementById("editor-content");
+const checklistUl = document.getElementById("checklist-items");
+const saveBtn = document.getElementById("save-btn");
+const cancelBtn = document.getElementById("cancel-btn");
+const deleteBtn = document.getElementById("delete-btn");
+const addChecklistBtn = document.getElementById("add-checklist-btn");
+const addImageBtn = document.getElementById("add-image-btn");
+const addVideoBtn = document.getElementById("add-video-btn");
+const addLinkBtn = document.getElementById("add-link-btn");
+
+let editingItem = null;
+
+// Double-click to open editor
+function setupItemEditing() {
+  document.querySelectorAll(".item").forEach(itemDiv => {
+    itemDiv.addEventListener("dblclick", () => {
+      const title = itemDiv.querySelector(".accordion").textContent.trim();
+      editingItem = currentCollection.items.find(i => i.title === title);
+      openItemEditor(editingItem);
     });
   });
 }
 
-function enableItemDrag() {
-  const items = document.querySelectorAll("#items-container .item");
-  items.forEach((item, idx) => {
-    item.draggable = true;
-    item.addEventListener("dragstart", e => {
-      e.dataTransfer.setData("text/plain", idx);
-      item.style.opacity = 0.5;
-    });
-    item.addEventListener("dragend", () => {
-      item.style.opacity = 1;
-    });
-    item.addEventListener("dragover", e => {
-      e.preventDefault();
-      item.style.border = "2px dashed #4CAF50";
-    });
-    item.addEventListener("dragleave", () => {
-      item.style.border = "1px solid #ddd";
-    });
-    item.addEventListener("drop", e => {
-      e.preventDefault();
-      const fromIdx = e.dataTransfer.getData("text/plain");
-      const toIdx = idx;
-      const moved = currentCollection.items.splice(fromIdx, 1)[0];
-      currentCollection.items.splice(toIdx, 0, moved);
-      selectCollection(currentCollection, document.querySelector(".collection-tab.active"));
-    });
+function openItemEditor(item) {
+  document.getElementById("menu-bar").style.display = "none";
+  booksContainer.style.display = "none";
+  collectionsContainer.style.display = "none";
+  itemsContainer.style.display = "none";
+  editorContainer.classList.remove("hidden");
+
+  editorTitle.value = item.title;
+  editorContent.innerHTML = item.content.text || "";
+
+  renderChecklist(item.content.checklist);
+}
+
+function renderChecklist(checklist) {
+  checklistUl.innerHTML = "";
+  (checklist || []).forEach((c, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <input type="checkbox" ${c.done ? "checked" : ""}>
+      <input type="text" value="${c.text}">
+      <button>×</button>
+    `;
+    li.querySelector("button").addEventListener("click", () => li.remove());
+    checklistUl.appendChild(li);
   });
 }
+
+// Toolbar formatting commands
+document.querySelectorAll("#toolbar-buttons button[data-command]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const command = btn.getAttribute("data-command");
+    document.execCommand(command, false, null);
+    editorContent.focus();
+  });
+});
+
+// Add media + link buttons
+addImageBtn.addEventListener("click", () => {
+  const url = prompt("Enter image URL:");
+  if (url) document.execCommand("insertImage", false, url);
+});
+addVideoBtn.addEventListener("click", () => {
+  const url = prompt("Enter YouTube embed URL (iframe src):");
+  if (url) {
+    const iframe = `<iframe width='400' height='225' src='${url}' frameborder='0' allowfullscreen></iframe>`;
+    document.execCommand("insertHTML", false, iframe);
+  }
+});
+addLinkBtn.addEventListener("click", () => {
+  const url = prompt("Enter link URL:");
+  if (url) document.execCommand("createLink", false, url);
+});
+
+// Add checklist item
+addChecklistBtn.addEventListener("click", () => {
+  const li = document.createElement("li");
+  li.innerHTML = `
+    <input type="checkbox">
+    <input type="text" placeholder="New checklist item">
+    <button>×</button>
+  `;
+  li.querySelector("button").addEventListener("click", () => li.remove());
+  checklistUl.appendChild(li);
+});
+
+// Cancel
+cancelBtn.addEventListener("click", () => {
+  closeEditor();
+});
+
+// Delete
+deleteBtn.addEventListener("click", () => {
+  if (!editingItem) return;
+  if (confirm(`Delete "${editingItem.title}"?`)) {
+    currentCollection.items = currentCollection.items.filter(i => i !== editingItem);
+    closeEditor();
+    selectCollection(currentCollection, document.querySelector(".collection-tab.active"));
+  }
+});
+
+// Save
+saveBtn.addEventListener("click", () => {
+  if (!editingItem) return;
+  editingItem.title = editorTitle.value;
+  editingItem.content.text = editorContent.innerHTML;
+  editingItem.content.checklist = Array.from(checklistUl.children).map(li => ({
+    text: li.querySelector('input[type="text"]').value,
+    done: li.querySelector('input[type="checkbox"]').checked
+  }));
+  closeEditor();
+  selectCollection(currentCollection, document.querySelector(".collection-tab.active"));
+});
+
+function closeEditor() {
+  editorContainer.classList.add("hidden");
+  document.getElementById("menu-bar").style.display = "";
+  booksContainer.style.display = "";
+  collectionsContainer.style.display = "";
+  itemsContainer.style.display = "";
+  editingItem = null;
+}
+
+// Re-enable double-click after rendering items
+const oldSelectCollection = selectCollection;
+selectCollection = function(collection, tabElement) {
+  oldSelectCollection(collection, tabElement);
+  setupItemEditing();
+};
+
+
+// ------------------ INITIAL RENDER ------------------
+renderBooks();
