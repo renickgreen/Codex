@@ -1,18 +1,118 @@
 let data = [
   {
-    title: "D&D",
+    title: "Fantasy & Young Adult",
     collections: [
       {
-        title: "Campaign Notes",
+        title: "Sarah J. Maas Series",
         items: [
           {
-            title: "Session 1",
+            title: "Throne of Glass",
             content: {
-              text: "Fought goblins",
-              checklist: [{ text: "Looted treasure", done: false }],
-              images: ["https://placehold.co/400"],
+              text: "Loved the main character's journey. Exciting plot twists.",
+              checklist: [
+                { text: "Finished reading", done: true },
+                { text: "Write review", done: false },
+                { text: "Recommend to friends", done: true }
+              ],
+              images: ["https://covers.openlibrary.org/b/id/7984916-L.jpg"],
               video: "",
-              links: ["https://example.com"]
+              links: ["https://sarahjmaas.com/books/throne-of-glass/"]
+            }
+          },
+          {
+            title: "A Court of Thorns and Roses",
+            content: {
+              text: "Intense romance and world-building. Some plot points dragged a bit.",
+              checklist: [
+                { text: "Finished reading", done: true },
+                { text: "Highlight favorite quotes", done: true },
+                { text: "Write blog post", done: false }
+              ],
+              images: ["https://covers.openlibrary.org/b/id/8231991-L.jpg"],
+              video: "",
+              links: ["https://sarahjmaas.com/books/a-court-of-thorns-and-roses/"]
+            }
+          }
+        ]
+      },
+      {
+        title: "Harry Potter Series",
+        items: [
+          {
+            title: "Harry Potter and the Sorcerer's Stone",
+            content: {
+              text: "Re-reading this series is always fun. Nostalgic and magical.",
+              checklist: [
+                { text: "Finished reading", done: true },
+                { text: "Note favorite spells", done: false },
+                { text: "Compare with movie", done: true }
+              ],
+              images: ["https://covers.openlibrary.org/b/id/7984910-L.jpg"],
+              video: "",
+              links: ["https://www.wizardingworld.com/"]
+            }
+          },
+          {
+            title: "Harry Potter and the Goblet of Fire",
+            content: {
+              text: "The Triwizard Tournament made this book very exciting. Loved character growth.",
+              checklist: [
+                { text: "Finished reading", done: true },
+                { text: "Discuss with book club", done: false }
+              ],
+              images: ["https://covers.openlibrary.org/b/id/7984914-L.jpg"],
+              video: "",
+              links: ["https://www.wizardingworld.com/"]
+            }
+          }
+        ]
+      },
+      {
+        title: "Hunger Games Series",
+        items: [
+          {
+            title: "The Hunger Games",
+            content: {
+              text: "Disturbing but gripping. Katniss is an inspiring character.",
+              checklist: [
+                { text: "Finished reading", done: true },
+                { text: "Favorite quotes", done: true },
+                { text: "Watch movie adaptation", done: false }
+              ],
+              images: ["https://covers.openlibrary.org/b/id/8235111-L.jpg"],
+              video: "",
+              links: ["https://thehungergames.fandom.com/wiki/The_Hunger_Games_(book)"]
+            }
+          }
+        ]
+      },
+      {
+        title: "Twilight Series",
+        items: [
+          {
+            title: "Twilight",
+            content: {
+              text: "Enjoyed the romance and vampire lore. Some clichés but fun.",
+              checklist: [
+                { text: "Finished reading", done: true },
+                { text: "Write reflections", done: false }
+              ],
+              images: ["https://covers.openlibrary.org/b/id/8228691-L.jpg"],
+              video: "",
+              links: ["https://www.stepheniemeyer.com/twilight/"]
+            }
+          },
+          {
+            title: "New Moon",
+            content: {
+              text: "More dramatic than the first book. Loved the cliffhanger ending.",
+              checklist: [
+                { text: "Finished reading", done: true },
+                { text: "Highlight favorite moments", done: true }
+              ],
+              images: ["https://covers.openlibrary.org/b/id/8228695-L.jpg"],
+              video: "",
+              links: ["https://www.stepheniemeyer.com/twilight/"]
             }
           }
         ]
@@ -20,6 +120,7 @@ let data = [
     ]
   }
 ];
+
 
 const booksContainer = document.getElementById("books-container");
 const collectionsContainer = document.getElementById("collections-container");
