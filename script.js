@@ -266,7 +266,11 @@ function setupItemEditing() {
   });
 }
 
+
 function openItemEditor(item) {
+
+  editingItem = item; // <-- fix here
+  
   document.getElementById("menu-bar").style.display = "none";
   booksContainer.style.display = "none";
   collectionsContainer.style.display = "none";
@@ -355,9 +359,11 @@ saveBtn.addEventListener("click", () => {
     text: li.querySelector('input[type="text"]').value,
     done: li.querySelector('input[type="checkbox"]').checked
   }));
+
   closeEditor();
   selectCollection(currentCollection, document.querySelector(".collection-tab.active"));
 });
+
 
 function closeEditor() {
   editorContainer.classList.add("hidden");
